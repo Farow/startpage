@@ -1,11 +1,12 @@
 {
   "manifest_version": 2,
-  "name": "startpage",
+  "name": "Startpage",
   "version": "0.1",
 
   "description": "Creates a new tab page.",
   "browser_specific_settings": {
     "gecko": {
+      "id": "{119b9298-b47c-4638-babb-b136e25fe3aa}",
       "strict_min_version": "59.0"
     }
   },
