@@ -1,10 +1,13 @@
 /* Font and colors */
 
 body {
-	background: hsla(30, 20%, 90%, 1);
 	font-family: "Courier New", monospace;
 	color: hsla(30, 20%, 50%, 1);
 	line-height: 20px;
+}
+
+.background {
+	background: hsla(30, 20%, 90%, 1);
 }
 
 /* Links */
@@ -15,7 +18,7 @@ a {
 	transition: color .1s cubic-bezier(0, 0, .25, 1);
 }
 
-a:hover, .button:hover {
+a:hover, .button:not([contenteditable]):hover {
 	text-decoration: underline;
 }
 

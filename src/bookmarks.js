@@ -18,6 +18,46 @@
 
 'use strict';
 
+const CssHelper = (() => {
+	let backgroundRule;
+
+	/* */
+
+	for (let styleSheet of document.styleSheets) {
+		if (styleSheet.href.endsWith('style.css')) {
+			getRules(styleSheet);
+		}
+	}
+
+	function setBackground(value) {
+		if (!(backgroundRule instanceof Object)) {
+			console.error('backgroundRule has not been initialized.');
+			return;
+		}
+
+		backgroundRule.style.background = value;
+	}
+
+	function getRules(styleSheet) {
+		for (let cssRule of styleSheet.cssRules) {
+			switch (cssRule.selectorText) {
+				case '.background':
+					backgroundRule = cssRule;
+					break;
+					break;
+			}
+		}
+
+		if (!(backgroundRule instanceof Object)) {
+			console.warn('Unable to find the .background CSS rule.');
+		}
+	}
+
+	return {
+		setBackground: setBackground,
+	}
+})();
+
 const ToggleEditModeButton = (() => {
 	const toggleEditButton = document.createElement('span');
 	toggleEditButton.appendChild(document.createTextNode('+ edit'));
@@ -113,6 +153,38 @@ const AddContainerButton = (() => {
 	return {
 		element: addContainerButton,
 	};
+})();
+
+const EditBackgroundColorButton = (() => {
+	const button = new EditableTextButton('+ background');
+	button.element.title = 'Adjust the background.\nPress enter to save.';
+
+	button.onChanged = onChanged;
+	button.onInput = onInput;
+	button.onClick = onClick;
+	button.onDismiss = onDismiss;
+
+	function onChanged(value) {
+		CssHelper.setBackground(value);
+	}
+
+	function onInput(value) {
+		BookmarkManager.setBackground(value);
+		BookmarkManager.save();
+	}
+
+	function onClick() {
+		button.element.textContent = BookmarkManager.settings.background;
+	}
+
+	function onDismiss() {
+		CssHelper.setBackground(BookmarkManager.settings.background);
+		button.element.textContent = '+ background';
+	}
+
+	return {
+		element: button.element,
+	}
 })();
 
 const ExportButton = (() => {
@@ -214,6 +286,7 @@ const SideControls = (() => {
 
 	wrapper.appendChild(ToggleEditModeButton.element);
 	wrapper.appendChild(AddContainerButton.element);
+	wrapper.appendChild(EditBackgroundColorButton.element);
 	wrapper.appendChild(ExportButton.element);
 	wrapper.appendChild(ImportButton.element);
 
@@ -304,6 +377,7 @@ const BookmarkEditor = (() => {
 })();
 
 const BookmarkManager = (() => {
+	const settings = defaultSettings();
 	const containers = [];
 
 	document.addEventListener('DOMContentLoaded', domReady);
@@ -318,6 +392,11 @@ const BookmarkManager = (() => {
 
 		containers.push(container);
 		save();
+	}
+
+	function setBackground(value) {
+		settings.background = value;
+		CssHelper.setBackground(value);
 	}
 
 	function save() {
@@ -335,14 +414,26 @@ const BookmarkManager = (() => {
 			dataObject = JSON.parse(data);
 		}
 		catch(error) {
-			throw new Error('Not a JSON string.');
+			throw new Error('Not a valid JSON string.');
 		}
 
-		if (!(dataObject instanceof Array)) {
-			throw new Error('Root JSON element is not an array.');
+		if (typeof dataObject != 'object' || !(dataObject instanceof Object) ) {
+			throw new Error('Root JSON element is not an object.');
 		}
 
-		for (let item of dataObject) {
+		if (!dataObject.hasOwnProperty('settings') || !(dataObject.settings instanceof Object)) {
+			throw new Error('Settings property missing or contains invalid data.');
+		}
+
+		if (!dataObject.settings.hasOwnProperty('background')) {
+			throw new Error('Settings has no background property.')
+		}
+
+		if (!dataObject.hasOwnProperty('containers') || !(dataObject.containers instanceof Array)) {
+			throw new Error('Containers property missing or contains invalid data.');
+		}
+
+		for (let item of dataObject.containers) {
 			if (!(item instanceof Object)) {
 				throw new Error('Unexpected data in JSON array.');
 			}
@@ -379,7 +470,7 @@ const BookmarkManager = (() => {
 
 	function domReady() {
 		if (containers.length == 0) {
-			// This is cleared when a container is added.
+			/* This is cleared when a container is added. */
 			document.body.classList.add('empty');
 		}
 
@@ -392,16 +483,23 @@ const BookmarkManager = (() => {
 	}
 
 	function load() {
-		let storedContainers = [];
+		let storedData;
 
 		try {
-			storedContainers = validateData(localStorage.getItem('data'));
+			storedData = localStorage.getItem('data');
+
+			if (typeof storedData == 'string' && storedData.length > 0) {
+				storedData = validateData(storedData);
+			}
 		}
 		catch(error) {
 			console.error('Invalid data in localStorage:', error);
+			storedData = { settings: defaultSettings(), containers: [] };
 		}
 
-		for (let storedContainer of storedContainers) {
+		Object.assign(settings, storedData.settings);
+
+		for (let storedContainer of storedData.containers) {
 			const container = new BookmarkContainer(storedContainer.title);
 			containers.push(container);
 
@@ -416,10 +514,21 @@ const BookmarkManager = (() => {
 				}
 			}
 		}
+
+		CssHelper.setBackground(settings.background);
+	}
+
+	function defaultSettings() {
+		return {
+			background: 'hsla(30, 20%, 90%, 1)',
+		};
 	}
 
 	function toObject() {
-		return containers.map(c => c.toObject());
+		return {
+			settings: settings,
+			containers: containers.map(c => c.toObject()),
+		};
 	}
 
 	function toJSON() {
@@ -428,9 +537,11 @@ const BookmarkManager = (() => {
 
 	return {
 		addContainer: addContainer,
+		setBackground: setBackground,
 		save: save,
 		toJSON: toJSON,
 		validateData, validateData,
+		get settings() { return Object.assign({ }, settings); },
 	};
 })();
 
@@ -584,5 +695,104 @@ function Spacer(flexible) {
 	return {
 		element: spacer,
 		toObject: toObject,
+	};
+}
+
+function EditableTextButton(text) {
+	const textButton = document.createElement('span');
+	textButton.appendChild(document.createTextNode(text));
+	textButton.classList.add('button');
+	textButton.addEventListener('mousedown', setButtonEditable);
+
+	/* Events are set through the exposed properties. */
+	let onChanged, onInput, onClick, onDismiss;
+
+	function setButtonEditable(event) {
+		if (textButton.isContentEditable) {
+			/* Clicking again adjusts the cursor position. */
+			event.stopPropagation();
+			return;
+		}
+
+		if (onClick instanceof Function) {
+			onClick();
+		}
+
+		/* Keep a copy of the current text in case it's changed by the exposed element property. */
+		text = textButton.textContent;
+
+		textButton.contentEditable = true;
+		textButton.addEventListener('keydown', keyListener);
+		textButton.addEventListener('keyup', keyPressListener);
+		textButton.addEventListener('blur', resetButton);
+		selectElement(textButton);
+
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	function resetButton() {
+		if (!textButton.isContentEditable) {
+			return;
+		}
+
+		textButton.textContent = text;
+		textButton.removeAttribute('contenteditable');
+		textButton.removeEventListener('keydown', keyListener);
+		textButton.removeEventListener('keyup', keyPressListener);
+		textButton.removeEventListener('blur', resetButton);
+		document.getSelection().removeAllRanges();
+
+		if (onDismiss instanceof Function) {
+			onDismiss();
+		}
+	}
+
+	function selectElement(element) {
+		const range = document.createRange();
+		range.selectNodeContents(element);
+
+		const selection = document.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
+
+	function keyListener(event) {
+		switch (event.key) {
+			case 'Enter':
+				const userInput = textButton.textContent;
+				resetButton();
+
+				if (onInput instanceof Function) {
+					onInput(userInput);
+				}
+
+				event.preventDefault();
+				event.stopPropagation();
+				return;
+			case 'Tab':
+			case 'Escape':
+				resetButton();
+
+				event.preventDefault();
+				event.stopPropagation();
+				return;
+			default:
+				event.stopPropagation();
+		}
+	}
+
+	function keyPressListener(event) {
+		if (onChanged instanceof Function) {
+			onChanged(textButton.textContent);
+		}
+	}
+
+	return {
+		set onChanged(callback) { onChanged = callback },
+		set onInput(callback) { onInput = callback },
+		set onClick(callback) { onClick = callback },
+		set onDismiss(callback) { onDismiss = callback },
+		element: textButton,
 	};
 }
