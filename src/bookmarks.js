@@ -285,8 +285,10 @@ const SideControls = (() => {
 	wrapper.classList.add('side');
 
 	wrapper.appendChild(ToggleEditModeButton.element);
+	wrapper.appendChild(new Spacer(false).element);
 	wrapper.appendChild(AddContainerButton.element);
 	wrapper.appendChild(EditBackgroundColorButton.element);
+	wrapper.appendChild(new Spacer(false).element);
 	wrapper.appendChild(ExportButton.element);
 	wrapper.appendChild(ImportButton.element);
 
