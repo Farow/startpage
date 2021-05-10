@@ -101,7 +101,6 @@ const AddContainerButton = (() => {
 				return;
 			case 'Tab':
 			case 'Escape':
-			console.log('btb');
 				resetButton();
 				event.preventDefault();
 				event.stopPropagation();
@@ -287,7 +286,6 @@ const BookmarkEditor = (() => {
 					titleInput.setSelectionRange(0, titleInput.value.length);
 				}
 
-				console.log(event.target, event);
 				event.preventDefault();
 				event.stopPropagation();
 				return;
