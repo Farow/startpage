@@ -18,6 +18,16 @@
 
 'use strict';
 
+const ClickPreventedEvent = (() => {
+	function dispatchOn(target) {
+		target.dispatchEvent(new CustomEvent('clickprevented', { bubbles: true }));
+	}
+
+	return {
+		dispatchOn: dispatchOn,
+	};
+})();
+
 const CssHelper = (() => {
 	let backgroundRule;
 
@@ -74,6 +84,8 @@ const ToggleEditModeButton = (() => {
 		else {
 			toggleEditButton.firstChild.replaceData(0, 1, '+');
 		}
+
+		ClickPreventedEvent.dispatchOn(toggleEditButton);
 
 		event.stopPropagation();
 		event.preventDefault();
@@ -218,6 +230,8 @@ const ExportButton = (() => {
 				}
 			});
 
+		ClickPreventedEvent.dispatchOn(exportButton);
+
 		event.stopPropagation();
 		event.preventDefault();
 	}
@@ -245,6 +259,8 @@ const ImportButton = (() => {
 				location.reload();
 			})
 			.catch(error => { setError(error); });
+
+		ClickPreventedEvent.dispatchOn(importButton);
 
 		event.preventDefault();
 		event.stopPropagation();
@@ -642,6 +658,7 @@ function EditableTextButton(text) {
 		textButton.addEventListener('keydown', keyListener);
 		textButton.addEventListener('keyup', keyPressListener);
 		textButton.addEventListener('blur', resetButton);
+		document.addEventListener('clickprevented', clickPrevented);
 		selectElement(textButton);
 
 		event.preventDefault();
@@ -658,6 +675,7 @@ function EditableTextButton(text) {
 		textButton.removeEventListener('keydown', keyListener);
 		textButton.removeEventListener('keyup', keyPressListener);
 		textButton.removeEventListener('blur', resetButton);
+		document.removeEventListener('clickprevented', clickPrevented);
 		document.getSelection().removeAllRanges();
 
 		if (onDismiss instanceof Function) {
@@ -702,6 +720,12 @@ function EditableTextButton(text) {
 	function keyPressListener(event) {
 		if (onChanged instanceof Function) {
 			onChanged(textButton.textContent);
+		}
+	}
+
+	function clickPrevented(event) {
+		if (event.target != textButton) {
+			resetButton();
 		}
 	}
 
