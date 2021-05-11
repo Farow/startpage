@@ -624,7 +624,6 @@ function EditableTextButton(text) {
 		textButton.removeEventListener('keyup', keyPressListener);
 		textButton.removeEventListener('blur', resetButton);
 		document.removeEventListener('clickprevented', clickPrevented);
-		document.getSelection().removeAllRanges();
 
 		if (onDismiss instanceof Function) {
 			onDismiss();
