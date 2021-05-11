@@ -143,48 +143,6 @@ const EditBackgroundColorButton = (() => {
 	}
 })();
 
-const ExportButton = (() => {
-	const exportButton = document.createElement('span');
-	exportButton.appendChild(document.createTextNode('+ export'));
-	exportButton.title = 'Exports bookmarks to the clipboard.';
-	exportButton.classList.add('button');
-	exportButton.addEventListener('mousedown', exportBookmarks);
-
-	function exportBookmarks(event) {
-		navigator.clipboard.writeText(BookmarkManager.toJSON())
-			.then(() => {
-				const currentSymbol = exportButton.firstChild.substringData(0, 1);
-				if (currentSymbol == '+') {
-					exportButton.firstChild.replaceData(0, 1, '✓');
-					setTimeout(() => {
-						exportButton.firstChild.replaceData(0, 1, '+');
-					}, 2000);
-				}
-			})
-			.catch(error => {
-				const currentSymbol = exportButton.firstChild.substringData(0, 1);
-				if (currentSymbol == '+') {
-					exportButton.firstChild.replaceData(0, 1, '✗');
-					exportButton.title = error;
-
-					setTimeout(() => {
-						exportButton.firstChild.replaceData(0, 1, '+');
-						exportButton.title = 'Exports bookmarks to the clipboard.';
-					}, 2000);
-				}
-			});
-
-		ClickPreventedEvent.dispatchOn(exportButton);
-
-		event.stopPropagation();
-		event.preventDefault();
-	}
-
-	return {
-		element: exportButton,
-	};
-})();
-
 const ImportButton = (() => {
 	const importButton = document.createElement('span');
 	importButton.appendChild(document.createTextNode('+ import'));
@@ -240,6 +198,48 @@ const ImportButton = (() => {
 	};
 })();
 
+const ExportButton = (() => {
+	const exportButton = document.createElement('span');
+	exportButton.appendChild(document.createTextNode('+ export'));
+	exportButton.title = 'Exports bookmarks to the clipboard.';
+	exportButton.classList.add('button');
+	exportButton.addEventListener('mousedown', exportBookmarks);
+
+	function exportBookmarks(event) {
+		navigator.clipboard.writeText(BookmarkManager.toJSON())
+			.then(() => {
+				const currentSymbol = exportButton.firstChild.substringData(0, 1);
+				if (currentSymbol == '+') {
+					exportButton.firstChild.replaceData(0, 1, '✓');
+					setTimeout(() => {
+						exportButton.firstChild.replaceData(0, 1, '+');
+					}, 2000);
+				}
+			})
+			.catch(error => {
+				const currentSymbol = exportButton.firstChild.substringData(0, 1);
+				if (currentSymbol == '+') {
+					exportButton.firstChild.replaceData(0, 1, '✗');
+					exportButton.title = error;
+
+					setTimeout(() => {
+						exportButton.firstChild.replaceData(0, 1, '+');
+						exportButton.title = 'Exports bookmarks to the clipboard.';
+					}, 2000);
+				}
+			});
+
+		ClickPreventedEvent.dispatchOn(exportButton);
+
+		event.stopPropagation();
+		event.preventDefault();
+	}
+
+	return {
+		element: exportButton,
+	};
+})();
+
 const SideControls = (() => {
 	const wrapper = document.createElement('div');
 	wrapper.classList.add('side');
@@ -249,8 +249,8 @@ const SideControls = (() => {
 	wrapper.appendChild(AddContainerButton.element);
 	wrapper.appendChild(EditBackgroundColorButton.element);
 	wrapper.appendChild(new Spacer(false).element);
-	wrapper.appendChild(ExportButton.element);
 	wrapper.appendChild(ImportButton.element);
+	wrapper.appendChild(ExportButton.element);
 
 	return {
 		element: wrapper,
