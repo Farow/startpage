@@ -375,6 +375,10 @@ const BookmarkManager = (() => {
 			document.body.appendChild(container.element);
 		}
 
+		if (LocationParams.editVisible) {
+			document.body.classList.add('empty');
+		}
+
 		document.body.appendChild(SideControls.element);
 		document.body.appendChild(BookmarkEditor.element);
 	}

@@ -47,6 +47,9 @@ const LocationParams = (() => {
 			case 'clear':
 				validParams[name] = true;
 				break;
+			case 'edit-visible':
+				validParams.editVisible = true;
+				break;
 		}
 	}
 
