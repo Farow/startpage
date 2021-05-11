@@ -25,13 +25,18 @@
 
 const LocationParams = (() => {
 	const params = new URLSearchParams(document.location.search);
+	const handled = {};
 	const validParams = {};
 
 	for(var key of params.keys()) {
-		handleParam(key, params.get(key));
+		if (handled.hasOwnProperty(key)) {
+			continue;
+		}
+
+		handleParam(key, params.getAll(key));
 
 		/* Prevent handling the same key more than once. */
-		params.delete(key);
+		handled[key] = true;
 	}
 
 	function handleParam(name, value) {
