@@ -485,23 +485,22 @@ const BookmarkManager = (() => {
 	}
 
 	function load() {
-		let storedData;
+		let configuration = { settings: defaultSettings(), containers: [] };
 
 		try {
-			storedData = localStorage.getItem('data');
+			const storedData = localStorage.getItem('data');
 
 			if (typeof storedData == 'string' && storedData.length > 0) {
-				storedData = validateData(storedData);
+				configuration = validateData(storedData);
 			}
 		}
 		catch(error) {
 			console.error('Invalid data in localStorage:', error);
-			storedData = { settings: defaultSettings(), containers: [] };
 		}
 
-		Object.assign(settings, storedData.settings);
+		Object.assign(settings, configuration.settings);
 
-		for (let storedContainer of storedData.containers) {
+		for (let storedContainer of configuration.containers) {
 			const container = new BookmarkContainer(storedContainer.title);
 			containers.push(container);
 
