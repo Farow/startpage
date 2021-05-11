@@ -8,9 +8,9 @@ Click on the "+ edit" button to enter edit mode.
 
 ## Demo
 
-[Demo](https://cdn.rawgit.com/Farow/startpage/demo/src/startpage.html) | Screenshot:
+[Demo](https://farow.github.io/startpage/src/startpage.html?demo&edit-visible) | Screenshot:
 
-![screenshot](https://i.imgur.com/TZL5jYv.png)
+![screenshot](https://i.imgur.com/15MINyI.png)
 
 
 ## Privacy policy
