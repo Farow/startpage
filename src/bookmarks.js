@@ -239,7 +239,7 @@ const ImportButton = (() => {
 	function importBookmarks(event) {
 		navigator.clipboard.readText()
 			.then(text => {
-				BookmarkManager.validateData(text);
+				Configuration.validateJson(text);
 				localStorage.setItem('data', text);
 				setSuccess();
 				location.reload();
@@ -379,7 +379,7 @@ const BookmarkEditor = (() => {
 })();
 
 const BookmarkManager = (() => {
-	const settings = defaultSettings();
+	const settings = {};
 	const containers = [];
 
 	document.addEventListener('DOMContentLoaded', domReady);
@@ -402,72 +402,7 @@ const BookmarkManager = (() => {
 	}
 
 	function save() {
-		localStorage.setItem('data', toJSON());
-	}
-
-	function validateData(data) {
-		if (typeof data != "string" || data.length == 0) {
-			throw new Error('Not a string.');
-		}
-
-		let dataObject;
-
-		try {
-			dataObject = JSON.parse(data);
-		}
-		catch(error) {
-			throw new Error('Not a valid JSON string.');
-		}
-
-		if (typeof dataObject != 'object' || !(dataObject instanceof Object) ) {
-			throw new Error('Root JSON element is not an object.');
-		}
-
-		if (!dataObject.hasOwnProperty('settings') || !(dataObject.settings instanceof Object)) {
-			throw new Error('Settings property missing or contains invalid data.');
-		}
-
-		if (!dataObject.settings.hasOwnProperty('background')) {
-			throw new Error('Settings has no background property.')
-		}
-
-		if (!dataObject.hasOwnProperty('containers') || !(dataObject.containers instanceof Array)) {
-			throw new Error('Containers property missing or contains invalid data.');
-		}
-
-		for (let item of dataObject.containers) {
-			if (!(item instanceof Object)) {
-				throw new Error('Unexpected data in JSON array.');
-			}
-
-			if (!item.hasOwnProperty('title')) {
-				throw new Error('Bookmark container has "title" property.');
-			}
-
-			if (!item.hasOwnProperty('bookmarks')) {
-				throw new Error('Bookmark container has no "bookmarks" property.');
-			}
-
-			if (!(item.bookmarks instanceof Array)) {
-				throw new Error('Bookmark container "bookmarks" property is not an array.');
-			}
-
-			for (let bookmark of item.bookmarks) {
-				if (!bookmark.hasOwnProperty('title') && !bookmark.hasOwnProperty('spacer')) {
-					throw new Error('Bookmark container contains invalid data.');
-				}
-
-				if (bookmark.hasOwnProperty('title') && !bookmark.hasOwnProperty('url')) {
-					throw new Error('Bookmark has no "url" property.');
-				}
-
-				if (bookmark.hasOwnProperty('spacer') && !bookmark.hasOwnProperty('flexible')) {
-					throw new Error('Spacer has no "flexible" property.');
-				}
-			}
-		}
-
-		return dataObject;
+		Configuration.save(toJSON());
 	}
 
 	function domReady() {
@@ -485,19 +420,7 @@ const BookmarkManager = (() => {
 	}
 
 	function load() {
-		let configuration = { settings: defaultSettings(), containers: [] };
-
-		try {
-			const storedData = localStorage.getItem('data');
-
-			if (typeof storedData == 'string' && storedData.length > 0) {
-				configuration = validateData(storedData);
-			}
-		}
-		catch(error) {
-			console.error('Invalid data in localStorage:', error);
-		}
-
+		let configuration = Configuration.load(LocationParams.demo);
 		Object.assign(settings, configuration.settings);
 
 		for (let storedContainer of configuration.containers) {
@@ -519,12 +442,6 @@ const BookmarkManager = (() => {
 		CssHelper.setBackground(settings.background);
 	}
 
-	function defaultSettings() {
-		return {
-			background: 'hsla(30, 20%, 90%, 1)',
-		};
-	}
-
 	function toObject() {
 		return {
 			settings: settings,
@@ -541,7 +458,6 @@ const BookmarkManager = (() => {
 		setBackground: setBackground,
 		save: save,
 		toJSON: toJSON,
-		validateData, validateData,
 		get settings() { return Object.assign({ }, settings); },
 	};
 })();
