@@ -97,73 +97,17 @@ const ToggleEditModeButton = (() => {
 })();
 
 const AddContainerButton = (() => {
-	const addContainerButton = document.createElement('span');
-	addContainerButton.appendChild(document.createTextNode('+ container'));
-	addContainerButton.classList.add('button');
-	addContainerButton.addEventListener('mousedown', setButtonEditable);
+	const button = new EditableTextButton('+ container');
+	button.element.title = 'Adds a new container for bookmarks.\nPress enter to create.';
 
-	function setButtonEditable(event) {
-		if (addContainerButton.isContentEditable) {
-			event.preventDefault();
-			event.stopPropagation();
-			return;
-		}
+	button.onInput = onInput;
 
-		addContainerButton.contentEditable = true;
-		addContainerButton.addEventListener('keydown', keyListener);
-		addContainerButton.addEventListener('blur', resetButton);
-		selectElement(addContainerButton);
-
-		event.preventDefault();
-		event.stopPropagation();
-	}
-
-	function resetButton() {
-		if (!addContainerButton.isContentEditable) {
-			return;
-		}
-
-		addContainerButton.innerHTML = '';
-		addContainerButton.appendChild(document.createTextNode('+ container'));
-		addContainerButton.removeAttribute('contenteditable');
-		addContainerButton.removeEventListener('keydown', keyListener);
-		addContainerButton.removeEventListener('blur', resetButton);
-		document.getSelection().removeAllRanges();
-	}
-
-	function selectElement(element) {
-		const range = document.createRange();
-		range.selectNodeContents(element);
-
-		const selection = document.getSelection();
-		selection.removeAllRanges();
-		selection.addRange(range);
-	}
-
-	function keyListener(event) {
-		switch (event.key) {
-			case 'Enter':
-				const userInput = addContainerButton.textContent;
-				resetButton();
-
-				BookmarkManager.addContainer(userInput);
-
-				event.preventDefault();
-				event.stopPropagation();
-				return;
-			case 'Tab':
-			case 'Escape':
-				resetButton();
-				event.preventDefault();
-				event.stopPropagation();
-				return;
-			default:
-				event.stopPropagation();
-		}
+	function onInput(value) {
+		BookmarkManager.addContainer(value);
 	}
 
 	return {
-		element: addContainerButton,
+		element: button.element,
 	};
 })();
 
