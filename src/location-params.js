@@ -39,7 +39,7 @@ const LocationParams = (() => {
 		handled[key] = true;
 	}
 
-	history.pushState({}, document.title, document.location.pathname);
+	history.replaceState({}, document.title, document.location.pathname);
 
 	function handleParam(name, value) {
 		switch (name) {
