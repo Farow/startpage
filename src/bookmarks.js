@@ -30,6 +30,7 @@ const ClickPreventedEvent = (() => {
 
 const CssHelper = (() => {
 	let backgroundRule;
+	let colorRule;
 
 	/* */
 
@@ -48,12 +49,23 @@ const CssHelper = (() => {
 		backgroundRule.style.background = value;
 	}
 
+	function setColor(value) {
+		if (!(colorRule instanceof Object)) {
+			console.error('colorRule has not been initialized.');
+			return;
+		}
+
+		colorRule.style.color = value;
+	}
+
 	function getRules(styleSheet) {
 		for (let cssRule of styleSheet.cssRules) {
 			switch (cssRule.selectorText) {
 				case '.background':
 					backgroundRule = cssRule;
 					break;
+				case '.color':
+					colorRule = cssRule;
 					break;
 			}
 		}
@@ -61,10 +73,15 @@ const CssHelper = (() => {
 		if (!(backgroundRule instanceof Object)) {
 			console.warn('Unable to find the .background CSS rule.');
 		}
+
+		if (!(colorRule instanceof Object)) {
+			console.warn('Unable to find the .color CSS rule.');
+		}
 	}
 
 	return {
 		setBackground: setBackground,
+		setColor: setColor,
 	}
 })();
 
@@ -136,6 +153,38 @@ const EditBackgroundColorButton = (() => {
 	function onDismiss() {
 		CssHelper.setBackground(BookmarkManager.settings.background);
 		button.element.textContent = '+ background';
+	}
+
+	return {
+		element: button.element,
+	}
+})();
+
+const EditColorButton = (() => {
+	const button = new EditableTextButton('+ color');
+	button.element.title = 'Adjust the text\'s color.\nPress enter to save.';
+
+	button.onChanged = onChanged;
+	button.onInput = onInput;
+	button.onClick = onClick;
+	button.onDismiss = onDismiss;
+
+	function onChanged(value) {
+		CssHelper.setColor(value);
+	}
+
+	function onInput(value) {
+		BookmarkManager.setColor(value);
+		BookmarkManager.save();
+	}
+
+	function onClick() {
+		button.element.textContent = BookmarkManager.settings.color;
+	}
+
+	function onDismiss() {
+		CssHelper.setColor(BookmarkManager.settings.color);
+		button.element.textContent = '+ color';
 	}
 
 	return {
@@ -248,6 +297,7 @@ const SideControls = (() => {
 	wrapper.appendChild(new Spacer(false).element);
 	wrapper.appendChild(AddContainerButton.element);
 	wrapper.appendChild(EditBackgroundColorButton.element);
+	wrapper.appendChild(EditColorButton.element);
 	wrapper.appendChild(new Spacer(false).element);
 	wrapper.appendChild(ImportButton.element);
 	wrapper.appendChild(ExportButton.element);
@@ -359,6 +409,11 @@ const BookmarkManager = (() => {
 	function setBackground(value) {
 		settings.background = value;
 		CssHelper.setBackground(value);
+	}
+
+	function setColor(value) {
+		settings.color = value;
+		CssHelper.setColor(value);
 	}
 
 	function save() {

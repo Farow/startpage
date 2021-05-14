@@ -2,12 +2,15 @@
 
 body {
 	font-family: "Courier New", monospace;
-	color: hsla(30, 20%, 50%, 1);
 	line-height: 20px;
 }
 
 .background {
 	background: hsla(30, 20%, 90%, 1);
+}
+
+.color {
+	color: hsla(30, 20%, 50%, 1);
 }
 
 /* Links */

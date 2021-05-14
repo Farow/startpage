@@ -21,6 +21,7 @@
 const Configuration = (() => {
 	const defaultSettings = {
 		background: 'hsla(30, 20%, 90%, 1)',
+		color: 'hsla(30, 20%, 50%, 1)',
 	};
 
 	const defaultConfiguration = {
