@@ -40,7 +40,17 @@ const Configuration = (() => {
 		}
 
 		try {
-			return validateJson(storedData);
+			const storedObject = validateJson(storedData);
+			const configuration = Object.assign({}, defaultConfiguration);
+
+			for (let key of Object.keys(defaultSettings)) {
+				if (storedObject.settings.hasOwnProperty(key)) {
+					configuration.settings[key] = storedObject.settings[key];
+				}
+			}
+
+			configuration.containers = storedObject.containers;
+			return configuration;
 		}
 		catch (error) {
 			console.warn('Invalid data in localStorage, falling back to the default configuration.', error);
@@ -72,10 +82,6 @@ const Configuration = (() => {
 
 		if (!dataObject.hasOwnProperty('settings') || !(dataObject.settings instanceof Object)) {
 			throw new Error('Settings property missing or contains invalid data.');
-		}
-
-		if (!dataObject.settings.hasOwnProperty('background')) {
-			throw new Error('Settings has no background property.')
 		}
 
 		if (!dataObject.hasOwnProperty('containers') || !(dataObject.containers instanceof Array)) {
@@ -120,9 +126,7 @@ const Configuration = (() => {
 	function demoConfiguration() {
 		return `
 			{
-			    "settings": {
-			        "background": "hsla(30, 30%, 90%, 1)"
-			    },
+			    "settings": { },
 			    "containers": [
 			        {
 			            "title": "news",
