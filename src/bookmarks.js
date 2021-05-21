@@ -442,6 +442,14 @@ const BookmarkManager = (() => {
 		let configuration = Configuration.load(LocationParams.demo);
 		Object.assign(settings, configuration.settings);
 
+		if (LocationParams.hasOwnProperty('background')) {
+			setBackground(LocationParams.background);
+		}
+
+		if (LocationParams.hasOwnProperty('color')) {
+			setColor(LocationParams.color);
+		}
+
 		for (let storedContainer of configuration.containers) {
 			const container = new BookmarkContainer(storedContainer.title);
 			containers.push(container);

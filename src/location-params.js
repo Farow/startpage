@@ -44,13 +44,15 @@ const LocationParams = (() => {
 	function handleParam(name, value) {
 		switch (name) {
 			case 'demo':
-				validParams[name] = true;
-				break;
 			case 'clear':
 				validParams[name] = true;
 				break;
 			case 'edit-visible':
 				validParams.editVisible = true;
+				break;
+			case 'background':
+			case 'color':
+				validParams[name] = value;
 				break;
 		}
 	}
