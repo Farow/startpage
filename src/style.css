@@ -59,6 +59,12 @@ body, div {
 	cursor: pointer;
 }
 
+.bookmark-container .button {
+	inline-size: 0;
+	overflow-x: visible;
+	white-space: nowrap;
+}
+
 .bookmark-container > .button:not(.button + .button):not(.spacer + .button) {
 	padding-top: 20px;
 }
