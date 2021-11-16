@@ -32,13 +32,7 @@ const CssHelper = (() => {
 	let backgroundRule;
 	let colorRule;
 
-	/* */
-
-	for (let styleSheet of document.styleSheets) {
-		if (styleSheet.href.endsWith('style.css')) {
-			getRules(styleSheet);
-		}
-	}
+	getRules(document.styleSheets[0]);
 
 	function setBackground(value) {
 		if (!(backgroundRule instanceof Object)) {
