@@ -477,6 +477,7 @@ const BookmarkManager = (() => {
 	return {
 		addContainer: addContainer,
 		setBackground: setBackground,
+		setColor: setColor,
 		save: save,
 		toJSON: toJSON,
 		get settings() { return Object.assign({ }, settings); },
