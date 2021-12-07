@@ -461,6 +461,7 @@ const BookmarkManager = (() => {
 		}
 
 		CssHelper.setBackground(settings.background);
+		CssHelper.setColor(settings.color);
 	}
 
 	function toObject() {
