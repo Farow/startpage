@@ -31,7 +31,9 @@ const Configuration = (() => {
 
 	function load(demoMode) {
 		if (demoMode) {
-			return validateJson(demoConfiguration());
+			const demoConfig = validateJson(demoConfiguration());
+			demoConfig.settings = { ...defaultSettings, ...demoConfig.settings };
+			return demoConfig;
 		}
 
 		const storedData = localStorage.getItem('data');
