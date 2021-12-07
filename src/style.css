@@ -1,16 +1,15 @@
 /* Font and colors */
 
+:root {
+	--primary-color: hsla(30, 20%, 90%, 1);
+	--primary-text-color: hsla(30, 20%, 50%, 1);
+}
+
 body {
+	background: var(--primary-color);
+	color: var(--primary-text-color);
 	font-family: "Courier New", monospace;
 	line-height: 20px;
-}
-
-.background {
-	background: hsla(30, 20%, 90%, 1);
-}
-
-.color {
-	color: hsla(30, 20%, 50%, 1);
 }
 
 /* Links */

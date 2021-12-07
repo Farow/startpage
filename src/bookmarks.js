@@ -29,48 +29,14 @@ const ClickPreventedEvent = (() => {
 })();
 
 const CssHelper = (() => {
-	let backgroundRule;
-	let colorRule;
-
-	getRules(document.styleSheets[0]);
+	const rootRule = document.styleSheets[0].cssRules[0];
 
 	function setBackground(value) {
-		if (!(backgroundRule instanceof Object)) {
-			console.error('backgroundRule has not been initialized.');
-			return;
-		}
-
-		backgroundRule.style.background = value;
+		rootRule.style.setProperty("--primary-color", value);
 	}
 
 	function setColor(value) {
-		if (!(colorRule instanceof Object)) {
-			console.error('colorRule has not been initialized.');
-			return;
-		}
-
-		colorRule.style.color = value;
-	}
-
-	function getRules(styleSheet) {
-		for (let cssRule of styleSheet.cssRules) {
-			switch (cssRule.selectorText) {
-				case '.background':
-					backgroundRule = cssRule;
-					break;
-				case '.color':
-					colorRule = cssRule;
-					break;
-			}
-		}
-
-		if (!(backgroundRule instanceof Object)) {
-			console.warn('Unable to find the .background CSS rule.');
-		}
-
-		if (!(colorRule instanceof Object)) {
-			console.warn('Unable to find the .color CSS rule.');
-		}
+		rootRule.style.setProperty("--primary-text-color", value);
 	}
 
 	return {
